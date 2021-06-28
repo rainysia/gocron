@@ -260,6 +260,10 @@ func (task *Task) parseWhere(session *xorm.Session, params CommonMap) {
 	if ok && name.(string) != "" {
 		session.And("t.name LIKE ?", "%"+name.(string)+"%")
 	}
+	command, ok := params["Command"]
+	if ok && command.(string) != "" {
+		session.And("t.command LIKE ?", "%"+command.(string)+"%")
+	}
 	protocol, ok := params["Protocol"]
 	if ok && protocol.(int) > 0 {
 		session.And("protocol = ?", protocol)

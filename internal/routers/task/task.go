@@ -171,7 +171,7 @@ func Store(ctx *macaron.Context, form TaskForm) string {
 
 	if id == 0 {
 		// 任务添加后开始调度执行
-		taskModel.Status = models.Running
+		taskModel.Status = models.Disabled
 		id, err = taskModel.Create()
 	} else {
 		_, err = taskModel.UpdateBean(id)
@@ -284,6 +284,7 @@ func parseQueryParams(ctx *macaron.Context) models.CommonMap {
 	params["Id"] = ctx.QueryInt("id")
 	params["HostId"] = ctx.QueryInt("host_id")
 	params["Name"] = ctx.QueryTrim("name")
+	params["Command"] = ctx.QueryTrim("command")
 	params["Protocol"] = ctx.QueryInt("protocol")
 	params["Tag"] = ctx.QueryTrim("tag")
 	status := ctx.QueryInt("status")

@@ -9,6 +9,7 @@ import (
 )
 
 const DefaultSection = "default"
+const LdapSection = "ldap"
 
 type Setting struct {
 	Db struct {
@@ -36,6 +37,13 @@ type Setting struct {
 
 	ConcurrencyQueue int
 	AuthSecret       string
+
+	Ldap struct {
+		Addr string
+		Dn string
+		User string
+		Password string
+	}
 }
 
 // 读取配置
@@ -74,6 +82,13 @@ func Read(filename string) (*Setting, error) {
 	s.CAFile = section.Key("ca_file").MustString("")
 	s.CertFile = section.Key("cert_file").MustString("")
 	s.KeyFile = section.Key("key_file").MustString("")
+
+	ldap := config.Section(LdapSection)
+	s.Ldap.Addr = ldap.Key("addr").MustString("ldap://127.0.0.1:389")
+	s.Ldap.Dn = ldap.Key("dn").MustString("")
+	s.Ldap.User = ldap.Key("bind.username").MustString("")
+	s.Ldap.Password = ldap.Key("bind.password").MustString("")
+
 
 	if s.EnableTLS {
 		if !utils.FileExist(s.CAFile) {

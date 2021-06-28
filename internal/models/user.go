@@ -82,6 +82,18 @@ func (user *User) Find(id int) error {
 	return err
 }
 
+// 通过username + email 查询用户
+func (user *User) FindByNameAndEmail(username string, email string) (bool, error) {
+	has, err := Db.Where("name = ? AND email = ?", username, email).Get(user)
+	if err != nil {
+		return has, err
+	}
+	if has {
+		return has, nil
+	}
+	return false, nil
+}
+
 // 用户名是否存在
 func (user *User) UsernameExists(username string, uid int) (int64, error) {
 	if uid > 0 {

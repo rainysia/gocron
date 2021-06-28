@@ -13,6 +13,9 @@
         <el-form-item label="标签">
           <el-input v-model.trim="searchParams.tag"></el-input>
         </el-form-item>
+        <el-form-item label="命令">
+          <el-input v-model.trim="searchParams.command"></el-input>
+        </el-form-item>
       </el-row>
       <el-row>
         <el-form-item label="执行方式">
@@ -113,21 +116,25 @@
       </el-table-column>
       <el-table-column
         prop="id"
-        label="任务ID">
+        label="任务ID" width="80">
       </el-table-column>
       <el-table-column
         prop="name"
         label="任务名称"
-      width="150">
+      width="300">
       </el-table-column>
       <el-table-column
         prop="tag"
-        label="标签">
+        label="标签" width="100">
       </el-table-column>
       <el-table-column
         prop="spec"
         label="cron表达式"
       width="120">
+      </el-table-column>
+      <el-table-column
+          prop="command"
+          label="命令">
       </el-table-column>
       <el-table-column label="下次执行时间" width="160">
         <template slot-scope="scope">
@@ -137,10 +144,10 @@
       <el-table-column
         prop="protocol"
         :formatter="formatProtocol"
-        label="执行方式">
+        label="执行方式" width="100">
       </el-table-column>
       <el-table-column
-        label="状态" v-if="this.isAdmin">
+        label="状态" width="150" v-if="this.isAdmin">
           <template slot-scope="scope">
             <el-switch
               v-if="scope.row.level === 1"
@@ -201,6 +208,7 @@ export default {
         id: '',
         protocol: '',
         name: '',
+        command: '',
         tag: '',
         host_id: '',
         status: ''
@@ -313,7 +321,8 @@ export default {
       })
     },
     jumpToLog (item) {
-      this.$router.push(`/task/log?task_id=${item.id}`)
+      let routeData = this.$router.resolve({path: `/task/log?task_id=${item.id}`})
+      window.open(routeData.href, '_blank')
     },
     refresh () {
       this.search(() => {
@@ -327,7 +336,8 @@ export default {
       } else {
         path = `/task/edit/${item.id}`
       }
-      this.$router.push(path)
+      let routeData = this.$router.resolve({path: path})
+      window.open(routeData.href, '_blank')
     }
   }
 }
