@@ -31,6 +31,10 @@ type InstallForm struct {
 	AdminPassword        string `binding:"Required;MinSize(6)"`
 	ConfirmAdminPassword string `binding:"Required;MinSize(6)"`
 	AdminEmail           string `binding:"Required;Email;MaxSize(50)"`
+	LdapAddr             string `binding:"Required;MaxSize(50)"`
+	LdapDn               string `binding:"Required;MaxSize(50)"`
+	LdapAdmin            string `binding:"Required;MaxSize(50)"`
+	LdapPassword         string `binding:"Required;MaxSize(30)"`
 }
 
 func (f InstallForm) Error(ctx *macaron.Context, errs binding.Errors) {
@@ -121,8 +125,14 @@ func writeConfig(form InstallForm) error {
 		"cert_file", "",
 		"key_file", "",
 	}
+	ldapConfig := []string{
+		"addr", form.LdapAddr,
+		"dn", fmt.Sprintf("\"%s\"", form.LdapDn),
+		"bind.username", fmt.Sprintf("\"%s\"", form.LdapAdmin),
+		"bind.password", form.LdapPassword,
+	}
 
-	return setting.Write(dbConfig, app.AppConfig)
+	return setting.Write(dbConfig, app.AppConfig, ldapConfig)
 }
 
 // 创建管理员账号

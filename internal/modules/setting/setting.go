@@ -108,12 +108,18 @@ func Read(filename string) (*Setting, error) {
 }
 
 // 写入配置
-func Write(config []string, filename string) error {
+func Write(config []string, filename string, ldapConfig []string) error {
 	if len(config) == 0 {
 		return errors.New("参数不能为空")
 	}
 	if len(config)%2 != 0 {
 		return errors.New("参数不匹配")
+	}
+	if len(ldapConfig) == 0 {
+		return errors.New("ldap参数不能为空")
+	}
+	if len(ldapConfig)%2 != 0 {
+		return errors.New("ldap参数不匹配")
 	}
 
 	file := ini.Empty()
@@ -124,6 +130,17 @@ func Write(config []string, filename string) error {
 	}
 	for i := 0; i < len(config); {
 		_, err = section.NewKey(config[i], config[i+1])
+		if err != nil {
+			return err
+		}
+		i += 2
+	}
+	ldapSection, err := file.NewSection(LdapSection)
+	if err != nil {
+		return err
+	}
+	for i := 0; i < len(ldapConfig); {
+		_, err = ldapSection.NewKey(ldapConfig[i], ldapConfig[i+1])
 		if err != nil {
 			return err
 		}

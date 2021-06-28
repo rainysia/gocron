@@ -159,13 +159,13 @@ export default {
           {required: true, message: '请输入LDAP地址, 例如: ldap://10.0.0.1:389', trigger: 'blur'}
         ],
         ldap_dn: [
-          {required: true, message: '请输入LDAP DN, 例如: "ou=Users,dc=domain,dc=com"', trigger: 'blur'}
+          {required: true, message: '请输入LDAP DN, 例如: ou=Users,dc=domain,dc=com', trigger: 'blur'}
         ],
         ldap_admin: [
-          {required: true, message: '请输入LDAP管理员帐号, 例如: "cn=gocron,ou=Service,dc=domain,dc=com"', trigger: 'blur'}
+          {required: true, message: '请输入LDAP管理员帐号, 例如: cn=gocron,ou=Service,dc=domain,dc=com', trigger: 'blur'}
         ],
         ldap_password: [
-          {required: true, message: '请输入LDAP管理员密码', trigger: 'blur'},
+          {required: true, message: '请输入LDAP管理员密码', trigger: 'blur'}
         ],
         admin_password: [
           {required: true, message: '请输入管理员密码', trigger: 'blur'},
