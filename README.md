@@ -142,9 +142,10 @@ rainysia v1.0
 * 增加ldap 支持, 只需要配置 conf/app.ini 增加
 ```
     [ldap]
+    addr              = ldap://youLdapUrl:389
+    dn                = "ou=Users,dc=youDomain,dc=com"
     bind.username     = "cn=connect-gocron,ou=Service,dc=youDomain,dc=com"
     bind.password     = YourPassword
-    addr              = ldap://youLdapUrl:389
 ```
 
 v1.5
