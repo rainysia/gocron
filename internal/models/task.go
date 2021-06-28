@@ -275,6 +275,6 @@ func (task *Task) parseWhere(session *xorm.Session, params CommonMap) {
 
 	tag, ok := params["Tag"]
 	if ok && tag.(string) != "" {
-		session.And("tag = ? ", tag)
+		session.And("tag LIKE ?", "%"+tag.(string)+"%")
 	}
 }
