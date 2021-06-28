@@ -74,6 +74,31 @@
             </el-form-item>
           </el-col>
         </el-row>
+        <h3>LDAP配置</h3>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="地址" prop="ldap_addr">
+              <el-input v-model="form.ldap_addr"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="DN" prop="ldap_dn">
+              <el-input v-model="form.ldap_dn"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="管理员帐号" prop="ldap_admin">
+              <el-input v-model="form.ldap_admin"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="管理员密码" prop="ldap_password">
+              <el-input v-model="form.ldap_password" type="password"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
         <el-form-item>
           <el-button type="primary" @click="submit()">安装</el-button>
         </el-form-item>
@@ -99,7 +124,11 @@ export default {
         admin_username: '',
         admin_password: '',
         confirm_admin_password: '',
-        admin_email: ''
+        admin_email: '',
+        ldap_addr: '',
+        ldap_dn: '',
+        ldap_admin: '',
+        ldap_password: ''
       },
       formRules: {
         db_type: [
@@ -125,6 +154,18 @@ export default {
         ],
         admin_email: [
           {type: 'email', required: true, message: '请输入管理员邮箱', trigger: 'blur'}
+        ],
+        ldap_addr: [
+          {required: true, message: '请输入LDAP地址, 例如: ldap://10.0.0.1:389', trigger: 'blur'}
+        ],
+        ldap_dn: [
+          {required: true, message: '请输入LDAP DN, 例如: "ou=Users,dc=domain,dc=com"', trigger: 'blur'}
+        ],
+        ldap_admin: [
+          {required: true, message: '请输入LDAP管理员帐号, 例如: "cn=gocron,ou=Service,dc=domain,dc=com"', trigger: 'blur'}
+        ],
+        ldap_password: [
+          {required: true, message: '请输入LDAP管理员密码', trigger: 'blur'},
         ],
         admin_password: [
           {required: true, message: '请输入管理员密码', trigger: 'blur'},
