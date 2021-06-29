@@ -262,13 +262,6 @@ func ValidateLogin(ctx *macaron.Context) string {
 		userModel.Password = password
 		userModel.IsAdmin = (*userAuth).IsAdmin
 
-		logger.Error((*userAuth).Username)
-		logger.Error((*userAuth).Password)
-		logger.Error((*userAuth).Email)
-		logger.Error((*userAuth).IsAdmin)
-		logger.Error((*userAuth).IsUser)
-		logger.Error((*userAuth).IsGuest)
-
 		if (*userAuth).IsAdmin == 1 {
 			userModel.IsAdmin = 1
 		}
