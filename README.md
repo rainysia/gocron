@@ -137,7 +137,21 @@ docker run --name gocron --link mysql:db -p 5920:5920 -d ouqg/gocron
 
 ## ChangeLog
 
-rainysia release/v1.0.0
+rainysia tag:release/v1.1.0
+--------
+* 增加ldap 组支持, 见internal/auth/auth_ldap.go
+```
+里面有
+    gocron-guests
+    gocron-users
+    gocron-admins
+三个ldap组, 不在三个组的, 不能访问
+    guest 组只能看
+    user  组可以执行和查看日志
+    admin 组有所有权限
+```
+
+rainysia tag:release/v1.0.0
 --------
 * 增加ldap 支持, 只需要配置 conf/app.ini 增加
 ```

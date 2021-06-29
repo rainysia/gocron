@@ -16,7 +16,7 @@
       </el-form>
       <el-row type="flex" justify="end">
         <el-col :span="2">
-          <el-button type="primary" v-if="this.$store.getters.user.isAdmin"  @click="toEdit(null)">新增</el-button>
+          <el-button type="primary" v-if="isAdmin && !isStaff"  @click="toEdit(null)">新增</el-button>
         </el-col>
         <el-col :span="2">
           <el-button type="info" @click="refresh">刷新</el-button>
@@ -65,9 +65,9 @@
         <el-table-column label="操作" width="300" v-if="this.isAdmin">
           <template slot-scope="scope">
             <el-row>
-              <el-button type="primary" @click="toEdit(scope.row)">编辑</el-button>
+              <el-button type="primary" v-if="isAdmin && !isStaff" @click="toEdit(scope.row)">编辑</el-button>
               <el-button type="info" @click="ping(scope.row)">测试连接</el-button>
-              <el-button type="danger" @click="remove(scope.row)">删除</el-button>
+              <el-button type="danger" v-if="isAdmin && !isStaff" @click="remove(scope.row)">删除</el-button>
             </el-row>
             <br>
           </template>
@@ -92,7 +92,8 @@ export default {
         name: '',
         alias: ''
       },
-      isAdmin: this.$store.getters.user.isAdmin
+      isAdmin: this.$store.getters.user.isAdmin,
+      isStaff: this.$store.getters.user.isStaff
     }
   },
   created () {
