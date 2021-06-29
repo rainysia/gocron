@@ -13,10 +13,8 @@ import (
 	"github.com/ouqiang/gocron/internal/routers/base"
 	"gopkg.in/macaron.v1"
 
-	"crypto/tls"
 	"fmt"
-	"log"
-	"github.com/go-ldap/ldap"
+	"github.com/ouqiang/gocron/internal/modules/auth"
 )
 
 const tokenDuration = 4 * time.Hour
@@ -235,36 +233,58 @@ func ValidateLogin(ctx *macaron.Context) string {
 	}
 	userModel := new(models.User)
 	/*
-	if !userModel.Match(username, password) {
-		return json.CommonFailure("用户名或密码错误")
-	}
+		if !userModel.Match(username, password) {
+			return json.CommonFailure("用户名或密码错误")
+		}
 	*/
-	email, err1 := Authentication(username, password)
-	if err1 != nil {
-		msg1 := fmt.Sprintf("用户名或密码错误, 授权失败: %s", err1)
+	var userAuth *authldap.UserAuthLdap = &authldap.UserAuthLdap{Username: username, Password: password}
+
+	err := userAuth.VerifyLdapAuth()
+	if err != nil {
+		msg1 := fmt.Sprintf("用户名或密码错误, 授权失败: %s", err)
 		logger.Error(msg1)
 		return json.CommonFailure(msg1)
 	}
 	// 不存在就去create一个
-	had, err2 := userModel.FindByNameAndEmail(username, email)
-	if err2 != nil {
+	had, err := userModel.FindByNameAndEmail(username, (*userAuth).Email)
+	if err != nil {
 		logger.Error(userModel.Id)
-		msg2 := fmt.Sprintf("查询用户 %s 和邮箱 %s, err:", username, email, err2)
+		msg2 := fmt.Sprintf("查询用户 %s 和邮箱 %s, err:", username, (*userAuth).Email, err)
 		logger.Error(msg2)
 	}
 	// 创建该用户
 	if !had {
-		msg3 := fmt.Sprintf("没有找到用户 %s 和对应的邮箱 %s", username, email)
+		msg3 := fmt.Sprintf("没有找到用户 %s 和对应的邮箱 %s", username, (*userAuth).Email)
 		logger.Error(msg3)
 		userModel.Name = username
-		userModel.Email = email
+		userModel.Email = (*userAuth).Email
 		userModel.Password = password
-		userModel.IsAdmin = 1
-		userModel.Status = 1
+		userModel.IsAdmin = (*userAuth).IsAdmin
 
-		userId, err3 := userModel.Create()
-		if err3 != nil {
-			return json.CommonFailure("同步用户失败", err3)
+		logger.Error((*userAuth).Username)
+		logger.Error((*userAuth).Password)
+		logger.Error((*userAuth).Email)
+		logger.Error((*userAuth).IsAdmin)
+		logger.Error((*userAuth).IsUser)
+		logger.Error((*userAuth).IsGuest)
+
+		if (*userAuth).IsAdmin == 1 {
+			userModel.IsAdmin = 1
+		}
+		if (*userAuth).IsGuest == 1 {
+			userModel.IsAdmin = 0
+		}
+		if (*userAuth).IsUser == 1 {
+			userModel.IsAdmin = 2
+		}
+
+		if (*userAuth).IsAdmin == 0 && (*userAuth).IsUser == 0 && (*userAuth).IsGuest == 0 {
+			return json.CommonFailure("没有权限唷唉")
+		}
+
+		userId, err := userModel.Create()
+		if err != nil {
+			return json.CommonFailure("同步用户失败", err)
 		}
 		userModel.Id = userId
 	}
@@ -272,14 +292,15 @@ func ValidateLogin(ctx *macaron.Context) string {
 	loginLogModel := new(models.LoginLog)
 	loginLogModel.Username = userModel.Name
 	loginLogModel.Ip = ctx.RemoteAddr()
-	_, err4 := loginLogModel.Create()
-	if err4 != nil {
-		logger.Error("记录用户登录日志失败", err4)
+
+	logId, err := loginLogModel.Create()
+	if err != nil {
+		logger.Error(fmt.Sprintf("记录用户登录日志失败 %s", logId), err)
 	}
 
-	token, err5 := generateToken(userModel)
-	if err5 != nil {
-		logger.Errorf("生成jwt失败: %s", err5)
+	token, err := generateToken(userModel)
+	if err != nil {
+		logger.Errorf("生成jwt失败: %s", err)
 		return json.Failure(utils.AuthError, "认证失败")
 	}
 
@@ -372,73 +393,4 @@ func RestoreToken(ctx *macaron.Context) error {
 	ctx.Data["is_admin"] = int(claims["is_admin"].(float64))
 
 	return nil
-}
-
-// LDAP auth
-func Authentication(username string, password string) (res string, err error) {
-	l, err := ldap.DialURL(app.Setting.Ldap.Addr)
-	if err != nil {
-		log.Println(err)
-		return "", err
-	}
-	defer l.Close()
-
-	// Reconnect with TLS
-	err = l.StartTLS(&tls.Config{InsecureSkipVerify: true})
-	if err != nil {
-		log.Println(err)
-		return "", err
-	}
-
-	// First bind with a read only user
-	err = l.Bind(app.Setting.Ldap.User, app.Setting.Ldap.Password)
-	if err != nil {
-		log.Println(err)
-		return "", err
-	}
-
-	// Search for the given username
-	searchRequest := ldap.NewSearchRequest(
-		app.Setting.Ldap.Dn,
-		ldap.ScopeWholeSubtree,
-		ldap.NeverDerefAliases,
-		0,
-		0,
-		false,
-		fmt.Sprintf("(&(objectClass=inetOrgPerson)(uid=%s))", ldap.EscapeFilter(username)),
-		[]string{},
-		nil,
-	)
-
-	sr, err := l.Search(searchRequest)
-	if err != nil {
-		log.Println(err)
-		return "", err
-	}
-
-	if len(sr.Entries) != 1 {
-		log.Println("User does not exist or too many entries returned")
-		return "", errors.New("User does not exist or too many entries returned")
-	}
-
-	user := sr.Entries[0]
-	userdn := user.DN
-
-	// Bind as the user to verify their password
-	err = l.Bind(userdn, password)
-	if err != nil {
-		log.Println(err)
-		return "", err
-	}
-
-	// Rebind as the read only user for any further queries
-	err = l.Bind(app.Setting.Ldap.User, app.Setting.Ldap.Password)
-	if err != nil {
-		log.Println(err)
-		return "", err
-	}
-	fmt.Sprintf(" passed %s", ldap.EscapeFilter(userdn))
-	email := user.GetAttributeValue("mail")
-
-	return email, nil
 }

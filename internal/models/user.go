@@ -17,7 +17,7 @@ type User struct {
 	Email     string    `json:"email" xorm:"varchar(50) notnull unique default '' "` // 邮箱
 	Created   time.Time `json:"created" xorm:"datetime notnull created"`
 	Updated   time.Time `json:"updated" xorm:"datetime updated"`
-	IsAdmin   int8      `json:"is_admin" xorm:"tinyint notnull default 0"` // 是否是管理员 1:管理员 0:普通用户
+	IsAdmin   int8      `json:"is_admin" xorm:"tinyint notnull default 0"` // 是否是管理员 1:管理员 0:普通用户(可以查看), 2: 普通用户(可以执行)
 	Status    Status    `json:"status" xorm:"tinyint notnull default 1"`   // 1: 正常 0:禁用
 	BaseModel `json:"-" xorm:"-"`
 }
