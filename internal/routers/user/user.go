@@ -14,7 +14,8 @@ import (
 	"gopkg.in/macaron.v1"
 
 	"fmt"
-	"github.com/ouqiang/gocron/internal/modules/auth"
+
+	authldap "github.com/ouqiang/gocron/internal/modules/auth"
 )
 
 const tokenDuration = 4 * time.Hour
@@ -26,7 +27,7 @@ type UserForm struct {
 	Password        string // 密码
 	ConfirmPassword string // 确认密码
 	Email           string `binding:"Required;MaxSize(50)"` // 邮箱
-	IsAdmin         int8   // 是否是管理员 1:管理员 0:普通用户
+	IsAdmin         int8   // 是否是管理员 1:管理员 0:普通用户(guest) 2:普通用户(user), 可执行
 	Status          models.Status
 }
 
@@ -279,7 +280,8 @@ func ValidateLogin(ctx *macaron.Context) string {
 		}
 
 		if (*userAuth).IsAdmin == 0 && (*userAuth).IsUser == 0 && (*userAuth).IsGuest == 0 {
-			return json.CommonFailure("没有权限唷唉")
+			//return json.Failure("没有权限唷唉")
+			return json.Failure(utils.UnauthorizedError, "没有权限唷唉")
 		}
 
 		userId, err := userModel.Create()

@@ -4,7 +4,8 @@ class User {
       'token': this.getToken(),
       'uid': this.getUid(),
       'username': this.getUsername(),
-      'isAdmin': this.getIsAdmin()
+      'isAdmin': this.getIsAdmin(),
+      'isStaff': this.getIsStaff()
     }
   }
 
@@ -41,11 +42,21 @@ class User {
 
   getIsAdmin () {
     let isAdmin = localStorage.getItem('is_admin')
-    return isAdmin === '1'
+    return isAdmin === '1' || isAdmin === '2'
   }
 
   setIsAdmin (isAdmin) {
     localStorage.setItem('is_admin', isAdmin)
+    return this
+  }
+
+  getIsStaff () {
+    return localStorage.getItem('is_staff') === '1'
+  }
+
+  setIsStaff (isAdmin) {
+    let isStaff = (isAdmin === 2) ? 1 : 0
+    localStorage.setItem('is_staff', isStaff)
     return this
   }
 }

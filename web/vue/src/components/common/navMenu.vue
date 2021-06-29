@@ -14,13 +14,11 @@
         <el-col :span="2">
           <el-menu-item index="/host">任务节点</el-menu-item>
         </el-col>
-        <!--
-        <el-col :span="2">
-          <el-menu-item v-if="this.$store.getters.user.isAdmin" index="/user">用户管理</el-menu-item>
+        <el-col :span="2" v-if="this.$store.getters.user.isAdmin && !this.$store.getters.user.isStaff">
+          <el-menu-item index="/user">用户管理</el-menu-item>
         </el-col>
-        -->
-        <el-col :span="2">
-          <el-menu-item v-if="this.$store.getters.user.isAdmin" index="/system">系统管理</el-menu-item>
+        <el-col :span="2" v-if="this.$store.getters.user.isAdmin && !this.$store.getters.user.isStaff" >
+          <el-menu-item index="/system">系统管理</el-menu-item>
         </el-col>
         <el-col :span="16"></el-col>
         <el-col :span="2" style="float:right;">
