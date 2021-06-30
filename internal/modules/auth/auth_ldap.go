@@ -73,7 +73,7 @@ func (ual *UserAuthLdap) VerifyLdapAuth() (err error) {
 		0,
 		0,
 		false,
-		fmt.Sprintf("(&(objectClass=inetOrgPerson)(uid=%s))", ldap.EscapeFilter(ual.Username)),
+		fmt.Sprintf("(&(objectClass=%s)(uid=%s))", app.Setting.Ldap.ObjClassUser, ldap.EscapeFilter(ual.Username)),
 		[]string{},
 		nil,
 	)
@@ -105,20 +105,19 @@ func (ual *UserAuthLdap) VerifyLdapAuth() (err error) {
 		log.Println(err)
 		return err
 	}
-	fmt.Sprintf(" passed %s", ldap.EscapeFilter(userdn))
+	//log.Printf(" passed %s", ldap.EscapeFilter(userdn))
 	email := user.GetAttributeValue("mail")
 	(*ual).Email = email
 
 	// Query Group to check IsAdmin
 	searchAdminGroupRequest := ldap.NewSearchRequest(
-		strings.Replace(app.Setting.Ldap.Dn, "Users", "Groups", 1),
+		app.Setting.Ldap.DnAdmin, // Query specified DN
 		ldap.ScopeWholeSubtree,
 		ldap.NeverDerefAliases,
 		0,
 		0,
 		false,
-		//fmt.Sprintf("(&(objectCategory=%s)(%s))", "group", "gocron-admins"), // The filter to apply
-		fmt.Sprintf("(&(objectClass=groupOfMembers)(cn=%s))", ldap.EscapeFilter("gocron-admins")),
+		fmt.Sprintf("(&(objectClass=%s))", app.Setting.Ldap.ObjClassMember),
 		[]string{},
 		nil,
 	)
@@ -129,8 +128,8 @@ func (ual *UserAuthLdap) VerifyLdapAuth() (err error) {
 	}
 
 	if len(agsr.Entries) != 1 {
-		log.Println("Group does not exist or too many entries returned")
-		return errors.New("Group does not exist or too many entries returned")
+		log.Println("Admin group does not exist or too many entries returned")
+		return errors.New("Admin group does not exist or too many entries returned")
 	}
 	adminGroupData := agsr.Entries[0]
 	adminMembers := adminGroupData.GetAttributeValues("member")
@@ -145,13 +144,13 @@ func (ual *UserAuthLdap) VerifyLdapAuth() (err error) {
 
 	// Query Group to check IsUser
 	searchUserGroupRequest := ldap.NewSearchRequest(
-		strings.Replace(app.Setting.Ldap.Dn, "Users", "Groups", 1),
+		app.Setting.Ldap.DnUser,
 		ldap.ScopeWholeSubtree,
 		ldap.NeverDerefAliases,
 		0,
 		0,
 		false,
-		fmt.Sprintf("(&(objectClass=groupOfMembers)(cn=%s))", ldap.EscapeFilter("gocron-users")),
+		fmt.Sprintf("(&(objectClass=%s))", app.Setting.Ldap.ObjClassMember),
 		[]string{},
 		nil,
 	)
@@ -162,8 +161,8 @@ func (ual *UserAuthLdap) VerifyLdapAuth() (err error) {
 	}
 
 	if len(ugsr.Entries) != 1 {
-		log.Println("Group does not exist or too many entries returned")
-		return errors.New("Group does not exist or too many entries returned")
+		log.Println("User group does not exist or too many entries returned")
+		return errors.New("User group does not exist or too many entries returned")
 	}
 	userGroupData := ugsr.Entries[0]
 	userMembers := userGroupData.GetAttributeValues("member")
@@ -178,14 +177,13 @@ func (ual *UserAuthLdap) VerifyLdapAuth() (err error) {
 
 	// Query Group to check IsGuest
 	searchGuestGroupRequest := ldap.NewSearchRequest(
-		strings.Replace(app.Setting.Ldap.Dn, "Users", "Groups", 1),
+		app.Setting.Ldap.DnGuest,
 		ldap.ScopeWholeSubtree,
 		ldap.NeverDerefAliases,
 		0,
 		0,
 		false,
-		//fmt.Sprintf("(&(objectCategory=%s)(%s))", "group", "gocron-admins"), // The filter to apply
-		fmt.Sprintf("(&(objectClass=groupOfMembers)(cn=%s))", ldap.EscapeFilter("gocron-guests")),
+		fmt.Sprintf("(&(objectClass=%s))", app.Setting.Ldap.ObjClassMember),
 		[]string{},
 		nil,
 	)
@@ -196,8 +194,8 @@ func (ual *UserAuthLdap) VerifyLdapAuth() (err error) {
 	}
 
 	if len(ggsr.Entries) != 1 {
-		log.Println("Group does not exist or too many entries returned")
-		return errors.New("Group does not exist or too many entries returned")
+		log.Println("Guest group does not exist or too many entries returned")
+		return errors.New("Guest group does not exist or too many entries returned")
 	}
 	guestGroupData := ggsr.Entries[0]
 	guestMembers := guestGroupData.GetAttributeValues("member")

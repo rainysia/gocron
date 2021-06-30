@@ -99,6 +99,35 @@
             </el-form-item>
           </el-col>
         </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="DN-管理员" prop="ldap_dn_admin">
+              <el-input v-model="form.ldap_dn_admin"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="DN-用户" prop="ldap_dn_user">
+              <el-input v-model="form.ldap_dn_user"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="DN-访客" prop="ldap_dn_guest">
+              <el-input v-model="form.ldap_dn_guest"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="objClsUser" prop="ldap_obj_class_user">
+              <el-input v-model="form.ldap_obj_class_user"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="objClsMember" prop="ldap_obj_class_member">
+              <el-input v-model="form.ldap_obj_class_member"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
         <el-form-item>
           <el-button type="primary" @click="submit()">安装</el-button>
         </el-form-item>
@@ -128,7 +157,12 @@ export default {
         ldap_addr: '',
         ldap_dn: '',
         ldap_admin: '',
-        ldap_password: ''
+        ldap_password: '',
+        ldap_dn_admin: '',
+        ldap_dn_user: '',
+        ldap_dn_guest: '',
+        ldap_obj_class_user: '',
+        ldap_obj_class_member: ''
       },
       formRules: {
         db_type: [
@@ -166,6 +200,21 @@ export default {
         ],
         ldap_password: [
           {required: true, message: '请输入LDAP管理员密码', trigger: 'blur'}
+        ],
+        ldap_dn_admin: [
+          {required: true, message: '请输入LDAP管理员DN, 例如: cn=gocron-admins,ou=GoCron-Prod,ou=Groups,dc=domain,dc=com', trigger: 'blur'}
+        ],
+        ldap_dn_user: [
+          {required: true, message: '请输入LDAP用户DN, 例如: cn=gocron-users,ou=GoCron-Prod,ou=Groups,dc=domain,dc=com', trigger: 'blur'}
+        ],
+        ldap_dn_guest: [
+          {required: true, message: '请输入LDAP访客DN, 例如: cn=gocron-guests,ou=GoCron-Prod,ou=Groups,dc=domain,dc=com', trigger: 'blur'}
+        ],
+        ldap_obj_class_user: [
+          {required: true, message: '请输入LDAP用户ObjClass, 例如: inetOrgPerson', trigger: 'blur'}
+        ],
+        ldap_obj_class_member: [
+          {required: true, message: '请输入LDAP组ObjClass, 例如: groupOfMembers', trigger: 'blur'}
         ],
         admin_password: [
           {required: true, message: '请输入管理员密码', trigger: 'blur'},

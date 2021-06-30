@@ -43,6 +43,11 @@ type Setting struct {
 		Dn string
 		User string
 		Password string
+		DnAdmin string
+		DnUser string
+		DnGuest string
+		ObjClassUser string
+		ObjClassMember string
 	}
 }
 
@@ -88,6 +93,11 @@ func Read(filename string) (*Setting, error) {
 	s.Ldap.Dn = ldap.Key("dn").MustString("")
 	s.Ldap.User = ldap.Key("bind.username").MustString("")
 	s.Ldap.Password = ldap.Key("bind.password").MustString("")
+	s.Ldap.DnAdmin = ldap.Key("dn.admin").MustString("")
+	s.Ldap.DnUser = ldap.Key("dn.user").MustString("")
+	s.Ldap.DnGuest = ldap.Key("dn.guest").MustString("")
+	s.Ldap.ObjClassUser = ldap.Key("obj.class.user").MustString("")
+	s.Ldap.ObjClassMember = ldap.Key("obj.class.member").MustString("")
 
 
 	if s.EnableTLS {

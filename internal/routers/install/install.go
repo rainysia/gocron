@@ -35,6 +35,11 @@ type InstallForm struct {
 	LdapDn               string `binding:"Required;MaxSize(50)"`
 	LdapAdmin            string `binding:"Required;MaxSize(50)"`
 	LdapPassword         string `binding:"Required;MaxSize(30)"`
+	LdapDnAdmin          string `binding:"Required;MaxSize(50)"`
+	LdapDnUser           string `binding:"Required;MaxSize(50)"`
+	LdapDnGuest          string `binding:"Required;MaxSize(50)"`
+	LdapObjClassUser     string `binding:"Required;MaxSize(50)"`
+	LdapObjClassMember   string `binding:"Required;MaxSize(50)"`
 }
 
 func (f InstallForm) Error(ctx *macaron.Context, errs binding.Errors) {
@@ -130,6 +135,11 @@ func writeConfig(form InstallForm) error {
 		"dn", fmt.Sprintf("\"%s\"", form.LdapDn),
 		"bind.username", fmt.Sprintf("\"%s\"", form.LdapAdmin),
 		"bind.password", form.LdapPassword,
+		"dn.admin", fmt.Sprintf("\"%s\"", form.LdapDnAdmin),
+		"dn.user", fmt.Sprintf("\"%s\"", form.LdapDnUser),
+		"dn.guest", fmt.Sprintf("\"%s\"", form.LdapDnGuest),
+		"obj.class.user", form.LdapObjClassUser,
+		"obj.class.member", form.LdapObjClassMember,
 	}
 
 	return setting.Write(dbConfig, app.AppConfig, ldapConfig)

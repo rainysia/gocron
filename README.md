@@ -149,6 +149,13 @@ rainysia tag:release/v1.1.0
     guest 组只能看
     user  组可以执行和查看日志
     admin 组有所有权限
+app.ini ldap下增加5个key, dn.admin 对应的admin的DN, 其它类推
+    [ldap]
+    dn.admin         = "cn=gocron-admins,ou=GoCron,ou=Groups,dc=yourdomain,dc=com"
+    dn.user          = "cn=gocron-users,ou=GoCron,ou=Groups,dc=yourdomain,dc=com"
+    dn.guest         = "cn=gocron-guests,ou=GoCron,ou=Groups,dc=huanjutang,dc=com"
+    obj.class.user   = inetOrgPerson
+    obj.class.member = groupOfMembers
 ```
 
 rainysia tag:release/v1.0.0
