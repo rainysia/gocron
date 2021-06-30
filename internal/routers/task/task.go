@@ -33,6 +33,7 @@ type TaskForm struct {
 	HostId           string
 	Tag              string
 	Remark           string
+	Status           models.Status `binding:"In(0,1)"`
 	NotifyStatus     int8 `binding:"In(1,2,3,4)"`
 	NotifyType       int8 `binding:"In(1,2,3,4)"`
 	NotifyReceiverId string
@@ -172,6 +173,9 @@ func Store(ctx *macaron.Context, form TaskForm) string {
 	if id == 0 {
 		// 任务添加后开始调度执行
 		taskModel.Status = models.Disabled
+		if form.Status == 1 {
+			taskModel.Status = models.Enabled
+		}
 		id, err = taskModel.Create()
 	} else {
 		_, err = taskModel.UpdateBean(id)
