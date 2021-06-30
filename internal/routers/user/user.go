@@ -247,41 +247,51 @@ func ValidateLogin(ctx *macaron.Context) string {
 		return json.CommonFailure(msg1)
 	}
 	// 不存在就去create一个
-	had, err := userModel.FindByNameAndEmail(username, (*userAuth).Email)
+	existUserId, err := userModel.FindByNameAndEmail(username, (*userAuth).Email)
 	if err != nil {
-		logger.Error(userModel.Id)
-		msg2 := fmt.Sprintf("查询用户 %s 和邮箱 %s, err:", username, (*userAuth).Email, err)
-		logger.Error(msg2)
+		logger.Errorf("查询用户 %s 和邮箱 %s, err:", username, (*userAuth).Email, err)
 	}
+	userModel.Name = username
+	userModel.Email = (*userAuth).Email
+	userModel.Password = password
+	userModel.IsAdmin = (*userAuth).IsAdmin
+
+	if (*userAuth).IsAdmin == 1 {
+		userModel.IsAdmin = 1
+	}
+	if (*userAuth).IsGuest == 1 {
+		userModel.IsAdmin = 0
+	}
+	if (*userAuth).IsUser == 1 {
+		userModel.IsAdmin = 2
+	}
+
+	if (*userAuth).IsAdmin == 0 && (*userAuth).IsUser == 0 && (*userAuth).IsGuest == 0 {
+		return json.Failure(utils.UnauthorizedError, "没有权限唷唉")
+	}
+
 	// 创建该用户
-	if !had {
-		msg3 := fmt.Sprintf("没有找到用户 %s 和对应的邮箱 %s", username, (*userAuth).Email)
-		logger.Error(msg3)
-		userModel.Name = username
-		userModel.Email = (*userAuth).Email
-		userModel.Password = password
-		userModel.IsAdmin = (*userAuth).IsAdmin
-
-		if (*userAuth).IsAdmin == 1 {
-			userModel.IsAdmin = 1
-		}
-		if (*userAuth).IsGuest == 1 {
-			userModel.IsAdmin = 0
-		}
-		if (*userAuth).IsUser == 1 {
-			userModel.IsAdmin = 2
-		}
-
-		if (*userAuth).IsAdmin == 0 && (*userAuth).IsUser == 0 && (*userAuth).IsGuest == 0 {
-			//return json.Failure("没有权限唷唉")
-			return json.Failure(utils.UnauthorizedError, "没有权限唷唉")
-		}
+	if existUserId == 0 {
+		logger.Warnf("没有找到用户 %s 和对应的邮箱 %s", username, (*userAuth).Email)
 
 		userId, err := userModel.Create()
 		if err != nil {
-			return json.CommonFailure("同步用户失败", err)
+			logger.Errorf("同步LDAP用户失败 user:%s, email:%s, err", username, (*userAuth).Email, err)
+			return json.CommonFailure("同步LDAP用户失败", err)
 		}
 		userModel.Id = userId
+	} else {
+		// 同步Ldap 更新用户
+		_, err = userModel.Update(existUserId, models.CommonMap{
+			"name":     userModel.Name,
+			"email":    userModel.Email,
+			"password": userModel.Password,
+			"is_admin": userModel.IsAdmin,
+		})
+		if err != nil {
+			logger.Errorf("更新LDAP用户失败 id:%s, user:%s, email:%s, err", existUserId, username, (*userAuth).Email, err)
+			return json.CommonFailure("更新LDAP用户失败", err)
+		}
 	}
 
 	loginLogModel := new(models.LoginLog)
