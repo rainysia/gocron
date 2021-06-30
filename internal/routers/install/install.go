@@ -35,9 +35,9 @@ type InstallForm struct {
 	LdapDn               string `binding:"Required;MaxSize(50)"`
 	LdapAdmin            string `binding:"Required;MaxSize(50)"`
 	LdapPassword         string `binding:"Required;MaxSize(30)"`
-	LdapDnAdmin          string `binding:"Required;MaxSize(50)"`
-	LdapDnUser           string `binding:"Required;MaxSize(50)"`
-	LdapDnGuest          string `binding:"Required;MaxSize(50)"`
+	LdapDnAdmin          string `binding:"Required;MaxSize(200)"`
+	LdapDnUser           string `binding:"Required;MaxSize(200)"`
+	LdapDnGuest          string `binding:"Required;MaxSize(200)"`
 	LdapObjClassUser     string `binding:"Required;MaxSize(50)"`
 	LdapObjClassMember   string `binding:"Required;MaxSize(50)"`
 }
