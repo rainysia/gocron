@@ -63,7 +63,12 @@ func (taskLog *TaskLog) List(params CommonMap) ([]TaskLog, error) {
 
 // 清空指定task的日志
 func (taskLog *TaskLog) Clear(id int64) (int64, error) {
-	return Db.Where("task_id = ?", id).Delete(taskLog)
+	if id > 0 {
+		return Db.Where("task_id = ?", id).Delete(taskLog)
+	} else {
+		t := time.Now().AddDate(0, 0, -7)
+		return Db.Where("start_time <= ?", t.Format(DefaultTimeFormat)).Delete(taskLog)
+	}
 }
 
 // 删除N个月前的日志
