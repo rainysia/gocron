@@ -1,7 +1,6 @@
 package models
 
 import (
-	"log"
 	"time"
 
 	"github.com/go-xorm/xorm"
@@ -64,7 +63,6 @@ func (taskLog *TaskLog) List(params CommonMap) ([]TaskLog, error) {
 
 // 清空指定task的日志
 func (taskLog *TaskLog) Clear(id int64) (int64, error) {
-	log.Printf("delete id: %v", id)
 	return Db.Where("task_id = ?", id).Delete(taskLog)
 }
 
