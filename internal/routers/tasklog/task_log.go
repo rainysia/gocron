@@ -32,8 +32,9 @@ func Index(ctx *macaron.Context) string {
 
 // 清空日志
 func Clear(ctx *macaron.Context) string {
+	taskId := ctx.QueryInt64("task_id")
 	taskLogModel := new(models.TaskLog)
-	_, err := taskLogModel.Clear()
+	_, err := taskLogModel.Clear(taskId)
 	json := utils.JsonResponse{}
 	if err != nil {
 		return json.CommonFailure(utils.FailureContent)

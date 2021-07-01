@@ -34,7 +34,7 @@
       </el-form>
       <el-row type="flex" justify="end">
         <el-col :span="3">
-          <el-button type="danger" v-if="isAdmin && !isStaff" @click="clearLog">清空日志</el-button>
+          <el-button type="danger" v-if="isAdmin && !isStaff" @click="clearLog(searchParams.task_id)">清空日志</el-button>
         </el-col>
         <el-col :span="2">
           <el-button type="info" @click="refresh">刷新</el-button>
@@ -236,9 +236,9 @@ export default {
         }
       })
     },
-    clearLog () {
+    clearLog (taskId) {
       this.$appConfirm(() => {
-        taskLogService.clear(() => {
+        taskLogService.clear(taskId, () => {
           this.searchParams.page = 1
           this.search()
         })
