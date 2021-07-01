@@ -156,6 +156,7 @@ app.ini ldap下增加5个key, dn.admin 对应的admin的DN, 其它类推
     dn.guest         = "cn=gocron-guests,ou=GoCron,ou=Groups,dc=huanjutang,dc=com"
     obj.class.user   = inetOrgPerson
     obj.class.member = groupOfMembers
+修复了清空日志为只清空当前日志
 ```
 
 rainysia tag:release/v1.0.0
